@@ -5,20 +5,29 @@ const User = require("../models/user.model");
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
 
     const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) return res.status(401).json({ message: "Mot de passe incorrect" });
+    if (!validPassword) {
+      return res.status(401).json({ message: "Mot de passe incorrect" });
+    }
 
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      {
+        id: user.id,
+        role: user.role,
+        username: user.username, // ✅ AJOUT IMPORTANT
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
 
     res.json({ token });
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };

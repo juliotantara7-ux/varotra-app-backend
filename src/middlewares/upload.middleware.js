@@ -1,28 +1,26 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
-// Configuration du stockage
+// ✅ CORRECTION : stocker les images à la RACINE du projet (/uploads)
+// __dirname ici = dossier middlewares/, donc on remonte d'un niveau
+const uploadPath = path.join(__dirname, "..", "uploads");
+
+// Créer le dossier s'il n'existe pas
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, { recursive: true });
+}
+
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // dossier où stocker les images
+  destination: function (req, file, cb) {
+    cb(null, uploadPath); // ✅ racine/uploads/
   },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  }
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + "-" + file.originalname;
+    cb(null, uniqueName);
+  },
 });
 
-// Filtrer les fichiers (optionnel : accepter seulement images)
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+const upload = multer({ storage });
 
-  if (extname && mimetype) {
-    cb(null, true);
-  } else {
-    cb(new Error("Seules les images sont autorisées"));
-  }
-};
-
-const upload = multer({ storage, fileFilter });
 module.exports = upload;
