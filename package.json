@@ -2,8 +2,8 @@
   "name": "api-node",
   "version": "1.0.0",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node src/server.js"
+    "start": "node src/server.js"
+    
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
